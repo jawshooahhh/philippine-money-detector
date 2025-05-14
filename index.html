@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!--
+    If you are serving your web app in a path other than the root, change the
+    href value below to reflect the base path you are serving from.
+
+    The path provided below has to start and end with a slash "/" in order for
+    it to work correctly.
+
+    For more details:
+    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
+
+    This is a placeholder for base href that will be replaced by the value of
+    the `--base-href` argument provided to `flutter build`.
+  -->
+  <base href="/philippine-money-detector/">
+
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="description" content="A new Flutter project.">
+
+  <!-- iOS meta tags & icons -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="money_detector">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="assets/app_icon.svg"/>
+
+  <title>Money Detector</title>
+  <link rel="manifest" href="manifest.json">
+  <script>
+    // The value below is injected by flutter build, do not touch.
+    const serviceWorkerVersion = ""2946486252"";
+  </script>  <!-- This script adds the flutter initialization JS code -->
+  <script src="flutter.js" defer></script>
+  <script>
+    // Initialize speech synthesis as soon as the page loads
+    window.addEventListener('load', () => {
+      if ('speechSynthesis' in window) {
+        setTimeout(() => {
+          const welcomeMessage = 'Welcome to Money Detector. Starting in three seconds. 3, 2, 1. Starting now.';
+          const utterance = new SpeechSynthesisUtterance(welcomeMessage);
+          window.speechSynthesis.speak(utterance);
+        }, 1000);
+      }
+    });
+
+    // This function now ignores the provided text and speaks our hardcoded message
+    async function speak(text) {
+      if (!('speechSynthesis' in window)) {
+        console.error('Speech synthesis not supported');
+        return;
+      }
+      
+      // For any subsequent speak calls, we'll use a shortened version
+      const utterance = new SpeechSynthesisUtterance('Money Detector is ready');
+      window.speechSynthesis.speak(utterance);
+
+      try {
+        // Cancel any ongoing speech
+        window.speechSynthesis.cancel();
+
+        const utterance = new SpeechSynthesisUtterance(text);
+        
+        // Try to find a clear, natural-sounding English voice
+        const voices = window.speechSynthesis.getVoices();
+        const preferredVoice = voices.find(voice => 
+          voice.lang.startsWith('en-') && 
+          (voice.name.includes('Google') || voice.name.includes('Natural') || voice.name.includes('Premium'))
+        ) || voices.find(voice => voice.lang.startsWith('en-'));
+        
+        if (preferredVoice) {
+          utterance.voice = preferredVoice;
+          utterance.lang = preferredVoice.lang;
+        } else {
+          utterance.lang = 'en-US';
+        }
+
+        utterance.rate = 1.0;
+        utterance.pitch = 1.0;
+        utterance.volume = 1.0;
+        
+        // Add comprehensive error handling
+        utterance.onerror = (event) => {
+          console.error('TTS Error:', event);
+          if (event.error === 'not-allowed') {
+            console.warn('Speech synthesis permission denied');
+            hasUserInteracted = false; // Reset interaction flag
+          }
+        };
+
+        // Add success callback
+        utterance.onend = () => {
+          console.log('Speech completed successfully');
+        };
+        
+        window.speechSynthesis.speak(utterance);
+      } catch (error) {
+        console.warn('Speech synthesis not supported in this browser');
+      }
+    }
+
+    // Load voices when they become available
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.onvoiceschanged = () => {
+        window.speechSynthesis.getVoices();
+      };
+    }
+  </script>
+</head>
+<body>
+  <script src="flutter_bootstrap.js" async></script>
+</body>
+</html>
